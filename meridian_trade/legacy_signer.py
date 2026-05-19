@@ -1,18 +1,12 @@
 """Legacy trade signing. Migration to PQC tracked under TICK-5102."""
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from pqcrypto.sign import ml_dsa_44 as mldsa44
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
 
 
 def sign_trade(trade_bytes: bytes, private_key: rsa.RSAPrivateKey) -> bytes:
-    return private_key.sign(
-        trade_bytes,
-        padding.PSS(
-            mgf=padding.MGF1(hashes.SHA256()),
-            salt_length=padding.PSS.MAX_LENGTH,
-        ),
-        hashes.SHA256(),
-    )
+    return mldsa44.sign(private_key, trade_bytes)
 
 
 def load_private_key(pem_bytes: bytes) -> rsa.RSAPrivateKey:
